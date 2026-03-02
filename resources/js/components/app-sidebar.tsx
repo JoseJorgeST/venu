@@ -35,7 +35,7 @@ const mainNavItems: NavItem[] = [
 
 export function AppSidebar() {
     return (
-        <Sidebar collapsible="icon" variant="inset" className="venu-sidebar-dark">
+        <Sidebar collapsible="icon" variant="inset" className="benut-sidebar-dark">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>

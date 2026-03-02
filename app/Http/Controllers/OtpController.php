@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OtpCode;
 use App\Models\User;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +14,7 @@ class OtpController extends Controller
     /**
      * Send OTP code to the given phone number.
      */
-    public function send(Request $request)
+    public function send(Request $request, SmsService $sms)
     {
         $validated = Validator::make($request->all(), [
             'phone' => ['required', 'string', 'max:255'],
@@ -32,7 +33,8 @@ class OtpController extends Controller
             'expires_at' => now()->addMinutes(5),
         ]);
 
-        // TODO: enviar código por SMS (Twilio, etc.)
+        $message = 'Tu código Bevenut es '.$code.'. Válido 5 minutos.';
+        $sms->send($phone, $message);
 
         return redirect()->route('verify-otp', ['phone' => $phone])
             ->with('status', 'Código enviado. Válido por 5 minutos.');

@@ -86,7 +86,12 @@ export default function VerifyOtp({ phone }: Props) {
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div className="grid gap-2">
                     <Label>Teléfono</Label>
-                    <p className="text-sm text-muted-foreground">{phone || '—'}</p>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm text-muted-foreground">{phone || '—'}</p>
+                        <TextLink href={login()} className="text-sm">
+                            ¿Número incorrecto? Corregir
+                        </TextLink>
+                    </div>
                 </div>
 
                 <div className="grid gap-2">
@@ -113,7 +118,7 @@ export default function VerifyOtp({ phone }: Props) {
                                     setDigits(next);
                                     focus(i + pasted.length);
                                 }}
-                                className="h-12 w-11 text-center text-lg font-semibold tabular-nums"
+                                className="h-12 w-11 text-center text-lg font-semibold tabular-nums border-2 border-white focus-visible:border-white focus-visible:ring-white/30"
                             />
                         ))}
                     </div>

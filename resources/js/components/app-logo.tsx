@@ -7,7 +7,7 @@ export default function AppLogo() {
                 <AppLogoIcon className="size-5 fill-current" />
             </div>
             <span className="ml-2 truncate text-base font-bold tracking-tight text-white">
-                Venu
+                Bevenut
             </span>
         </>
     );

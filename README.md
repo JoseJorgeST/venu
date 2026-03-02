@@ -1,6 +1,6 @@
-# venu
+# Bevenut
 
-Proyecto Laravel + Inertia + React (Venu).
+Proyecto Laravel + Inertia + React (Bevenut).
 
 ## Requisitos
 

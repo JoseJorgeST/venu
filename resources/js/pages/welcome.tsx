@@ -72,7 +72,7 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="Venu — Reserva y pide">
+            <Head title="Bevenut — Reserva y pide">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link
                     href="https://fonts.bunny.net/css?family=outfit:400,500,600,700,800"
@@ -120,7 +120,7 @@ export default function Welcome({
                         href="/"
                         className="text-xl font-bold tracking-tight text-white"
                     >
-                        Venu
+                        Bevenut
                     </Link>
                     <nav className="flex items-center gap-2">
                         {auth.user ? (
@@ -294,7 +294,7 @@ export default function Welcome({
                             )}
                         </motion.section>
 
-                        {/* Qué es Venu - full width statement */}
+                        {/* Qué es Bevenut - full width statement */}
                         <motion.section
                             className="py-20"
                             initial={{ opacity: 0, y: 40 }}
@@ -314,7 +314,7 @@ export default function Welcome({
                                     <span className="text-amber-400">disfrutar</span>.
                                 </h2>
                                 <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">
-                                    Venu reúne restaurantes, reservas y pedidos a domicilio. Explora cartas,
+                                    Bevenut reúne restaurantes, reservas y pedidos a domicilio. Explora cartas,
                                     acumula puntos en cada compra y canjéalos por descuentos. Todo en un solo lugar.
                                 </p>
                             </div>
@@ -387,7 +387,7 @@ export default function Welcome({
                         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="lg:col-span-2">
                                 <Link href="/" className="text-2xl font-bold text-white">
-                                    Venu
+                                    Bevenut
                                 </Link>
                                 <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/50">
                                     Reserva mesa, pide a domicilio y acumula puntos. Todo en una app.
@@ -421,7 +421,7 @@ export default function Welcome({
                                     Legal
                                 </p>
                                 <p className="mt-4 text-sm text-white/50">
-                                    © {new Date().getFullYear()} Venu
+                                    © {new Date().getFullYear()} Bevenut
                                 </p>
                             </div>
                         </div>

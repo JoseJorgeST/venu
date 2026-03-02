@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    'twilio' => [
+        'sid' => env('TWILIO_SID'),
+        'token' => env('TWILIO_AUTH_TOKEN'),
+        'from' => env('TWILIO_FROM'),
+    ],
+
+    'vonage' => [
+        'key' => env('VONAGE_KEY'),
+        'secret' => env('VONAGE_SECRET'),
+        'from' => env('VONAGE_FROM'), // Nombre remitente (hasta 11 caracteres) o número
+    ],
+
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'log'), // log | twilio | vonage
+    ],
+
 ];

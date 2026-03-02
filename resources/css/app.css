@@ -134,8 +134,8 @@
 }
 
 /* Sidebar Venu: fondo negro, letras blancas, seleccionado amarillo */
-.venu-sidebar-dark,
-.venu-sidebar-dark [data-sidebar='sidebar'] {
+.benut-sidebar-dark,
+.benut-sidebar-dark [data-sidebar='sidebar'] {
     --sidebar: #000000;
     --sidebar-foreground: #ffffff;
     --sidebar-primary: #f59e0b;
@@ -146,7 +146,7 @@
     --sidebar-ring: rgba(245, 158, 11, 0.4);
 }
 
-.venu-sidebar-dark [data-sidebar='sidebar'] {
+.benut-sidebar-dark [data-sidebar='sidebar'] {
     background-color: #000000 !important;
 }
 
@@ -173,82 +173,82 @@
 }
 
 /* Todo el texto del sidebar en blanco */
-.venu-sidebar-dark,
-.venu-sidebar-dark [data-sidebar='sidebar'],
-.venu-sidebar-dark [data-sidebar='sidebar'] * {
+.benut-sidebar-dark,
+.benut-sidebar-dark [data-sidebar='sidebar'],
+.benut-sidebar-dark [data-sidebar='sidebar'] * {
     color: #ffffff;
 }
 
 /* Etiqueta "Menú" y enlaces del menú en blanco */
-.venu-sidebar-dark [data-sidebar='group-label'],
-.venu-sidebar-dark [data-slot='sidebar-group-label'] {
+.benut-sidebar-dark [data-sidebar='group-label'],
+.benut-sidebar-dark [data-slot='sidebar-group-label'] {
     color: rgba(255, 255, 255, 0.8) !important;
 }
 
-.venu-sidebar-dark button[data-sidebar='menu-button'],
-.venu-sidebar-dark a[data-sidebar='menu-button'] {
+.benut-sidebar-dark button[data-sidebar='menu-button'],
+.benut-sidebar-dark a[data-sidebar='menu-button'] {
     color: #ffffff !important;
 }
 
-.venu-sidebar-dark button[data-sidebar='menu-button'] [&>svg],
-.venu-sidebar-dark a[data-sidebar='menu-button'] [&>svg] {
+.benut-sidebar-dark button[data-sidebar='menu-button'] [&>svg],
+.benut-sidebar-dark a[data-sidebar='menu-button'] [&>svg] {
     color: #ffffff;
 }
 
 /* Ítem seleccionado del menú en amarillo (se mantiene así) */
-.venu-sidebar-dark [data-active='true'],
-.venu-sidebar-dark [data-active='true'] [&>svg] {
+.benut-sidebar-dark [data-active='true'],
+.benut-sidebar-dark [data-active='true'] [&>svg] {
     background-color: rgba(245, 158, 11, 0.2) !important;
     color: #f59e0b !important;
 }
 
 /* Footer del sidebar (usuario) texto blanco */
-.venu-sidebar-dark [data-sidebar='sidebar'] [data-slot='sidebar-menu-button'] {
+.benut-sidebar-dark [data-sidebar='sidebar'] [data-slot='sidebar-menu-button'] {
     color: #ffffff !important;
 }
 
 /* Header de contenido: fondo negro, letras blancas */
-.venu-header-dark {
+.benut-header-dark {
     background-color: #000000 !important;
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-.venu-header-dark,
-.venu-header-dark * {
+.benut-header-dark,
+.benut-header-dark * {
     color: #ffffff;
 }
 
-.venu-header-dark .text-muted-foreground,
-.venu-header-dark [class*='breadcrumb'] a,
-.venu-header-dark [class*='BreadcrumbPage'] {
+.benut-header-dark .text-muted-foreground,
+.benut-header-dark [class*='breadcrumb'] a,
+.benut-header-dark [class*='BreadcrumbPage'] {
     color: rgba(255, 255, 255, 0.85) !important;
 }
 
-.venu-header-dark a:hover {
+.benut-header-dark a:hover {
     color: #f59e0b !important;
 }
 
-.venu-header-dark button[data-sidebar='trigger'] {
+.benut-header-dark button[data-sidebar='trigger'] {
     color: #ffffff !important;
 }
 
-.venu-header-dark button[data-sidebar='trigger']:hover {
+.benut-header-dark button[data-sidebar='trigger']:hover {
     color: #f59e0b !important;
     background: rgba(245, 158, 11, 0.15) !important;
 }
 
 /* Asegurar que breadcrumbs y enlaces del header se vean */
-.venu-header-dark [data-slot='breadcrumb-list'],
-.venu-header-dark [data-slot='breadcrumb-link'],
-.venu-header-dark [data-slot='breadcrumb-page'] {
+.benut-header-dark [data-slot='breadcrumb-list'],
+.benut-header-dark [data-slot='breadcrumb-link'],
+.benut-header-dark [data-slot='breadcrumb-page'] {
     color: rgba(255, 255, 255, 0.9) !important;
 }
 
-.venu-header-dark [data-slot='breadcrumb-list'] a:hover {
+.benut-header-dark [data-slot='breadcrumb-list'] a:hover {
     color: #f59e0b !important;
 }
 
-.venu-header-dark [data-slot='breadcrumb-list'] [role='presentation'] svg {
+.benut-header-dark [data-slot='breadcrumb-list'] [role='presentation'] svg {
     color: rgba(255, 255, 255, 0.6) !important;
 }
 
