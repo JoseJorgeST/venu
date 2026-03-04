@@ -5,7 +5,7 @@ import type { SharedData } from '@/types';
 
 type Props = {
     children: ReactNode;
-    variant?: 'header' | 'sidebar';
+    variant?: 'header' | 'sidebar' | 'admin' | 'company';
 };
 
 export function AppShell({ children, variant = 'header' }: Props) {
@@ -14,6 +14,14 @@ export function AppShell({ children, variant = 'header' }: Props) {
     if (variant === 'header') {
         return (
             <div className="flex min-h-screen w-full flex-col">{children}</div>
+        );
+    }
+
+    if (variant === 'admin' || variant === 'company') {
+        return (
+            <div className="flex min-h-screen w-full flex-col bg-muted/40">
+                {children}
+            </div>
         );
     }
 

@@ -1,6 +1,4 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
-import { AnnouncementModal } from '@/components/announcement-modal';
 import { GoogleIcon } from '@/components/google-icon';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -10,34 +8,26 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
+import { google as googleRoute } from '@/routes/login';
 import { store } from '@/routes/register';
 
 const inputClassName =
     'border-amber-500/80 focus-visible:border-amber-500 focus-visible:ring-amber-500/30';
 
 export default function Register() {
-    const [googleAnnouncementOpen, setGoogleAnnouncementOpen] = useState(false);
-
     return (
         <AuthLayout
             title="Crear cuenta"
             description="Regístrate con Google o con tu email"
         >
             <Head title="Registro" />
-            <button
-                type="button"
-                onClick={() => setGoogleAnnouncementOpen(true)}
+            <Link
+                href={googleRoute.url()}
                 className="mb-6 flex w-full items-center justify-center gap-3 rounded-lg border border-black/10 bg-white py-3 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
             >
                 <GoogleIcon className="size-5" />
                 Continuar con Google
-            </button>
-            <AnnouncementModal
-                open={googleAnnouncementOpen}
-                onOpenChange={setGoogleAnnouncementOpen}
-                title="Próximamente"
-                description="Inicia sesión con Google próximamente. Usa email o teléfono."
-            />
+            </Link>
 
             <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">

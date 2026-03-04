@@ -1,6 +1,5 @@
 import { Form, Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { AnnouncementModal } from '@/components/announcement-modal';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { GoogleIcon } from '@/components/google-icon';
 import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
-import { store } from '@/routes/login';
+import { store, google as googleRoute } from '@/routes/login';
 import { request } from '@/routes/password';
 
 const inputClassName =
@@ -29,7 +28,6 @@ export default function Login({
 }: Props) {
     const [phone, setPhone] = useState('');
     const [otpSending, setOtpSending] = useState(false);
-    const [googleAnnouncementOpen, setGoogleAnnouncementOpen] = useState(false);
     const pageErrors = (usePage().props as { errors?: Record<string, string> }).errors ?? {};
 
     const sendOtp = (e: React.FormEvent) => {
@@ -50,20 +48,13 @@ export default function Login({
         >
             <Head title="Iniciar sesión" />
 
-            <button
-                type="button"
-                onClick={() => setGoogleAnnouncementOpen(true)}
+            <Link
+                href={googleRoute.url()}
                 className="mb-6 flex w-full items-center justify-center gap-3 rounded-lg border border-black/10 bg-white py-3 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
             >
                 <GoogleIcon className="size-5" />
                 Continuar con Google
-            </button>
-            <AnnouncementModal
-                open={googleAnnouncementOpen}
-                onOpenChange={setGoogleAnnouncementOpen}
-                title="Próximamente"
-                description="Inicia sesión con Google próximamente. Usa email o teléfono."
-            />
+            </Link>
 
             <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">

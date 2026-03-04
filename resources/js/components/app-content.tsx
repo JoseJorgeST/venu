@@ -1,13 +1,29 @@
 import * as React from 'react';
 import { SidebarInset } from '@/components/ui/sidebar';
+import type { BreadcrumbItem } from '@/types';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 
 type Props = React.ComponentProps<'main'> & {
-    variant?: 'header' | 'sidebar';
+    variant?: 'header' | 'sidebar' | 'admin' | 'company';
+    breadcrumbs?: BreadcrumbItem[];
 };
 
-export function AppContent({ variant = 'header', children, ...props }: Props) {
+export function AppContent({ variant = 'header', breadcrumbs, children, ...props }: Props) {
     if (variant === 'sidebar') {
         return <SidebarInset {...props}>{children}</SidebarInset>;
+    }
+
+    if (variant === 'admin' || variant === 'company') {
+        return (
+            <main className="flex-1 p-6" {...props}>
+                {breadcrumbs && breadcrumbs.length > 0 && (
+                    <div className="mb-6">
+                        <Breadcrumbs breadcrumbs={breadcrumbs} />
+                    </div>
+                )}
+                {children}
+            </main>
+        );
     }
 
     return (

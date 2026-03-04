@@ -3,9 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
+ * @property int $id
+ * @property int|null $company_id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $category
+ * @property string|null $image_url
+ * @property string|null $description
+ * @property float|null $rating
+ * @property float|null $latitude
+ * @property float|null $longitude
+ * @property bool $is_active
+ * @property-read \App\Models\Company|null $company
+ * @property-read \App\Models\Branch|null $branch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MenuItem> $menuItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Reservation> $reservations
@@ -19,6 +34,7 @@ class Restaurant extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'company_id',
         'name',
         'slug',
         'category',
@@ -75,5 +91,29 @@ class Restaurant extends Model
     public function loyaltyLogs(): HasMany
     {
         return $this->hasMany(LoyaltyLog::class);
+    }
+
+    /**
+     * Get the company that owns the restaurant.
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Get the branch associated with this restaurant.
+     */
+    public function branch(): HasOne
+    {
+        return $this->hasOne(Branch::class);
+    }
+
+    /**
+     * Scope to filter restaurants by company.
+     */
+    public function scopeForCompany($query, $companyId)
+    {
+        return $query->where('company_id', $companyId);
     }
 }
