@@ -2,7 +2,7 @@ import { Head } from '@inertiajs/react';
 import CompanyLayout from '@/layouts/company-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, DollarSign, Clock, Store, TrendingUp, Calendar } from 'lucide-react';
+import { ShoppingCart, DollarSign, Clock, Store, TrendingUp, Calendar, Building2, MapPin } from 'lucide-react';
 import type { Company, Branch, Order } from '@/types/tenant';
 
 interface Props {
@@ -30,13 +30,13 @@ export default function CompanyDashboard({ company, branch, stats, recentOrders,
 
     const getStatusColor = (status: string) => {
         const colors: Record<string, string> = {
-            pending: 'bg-yellow-100 text-yellow-800',
-            paid: 'bg-blue-100 text-blue-800',
-            preparing: 'bg-purple-100 text-purple-800',
-            ready: 'bg-green-100 text-green-800',
-            completed: 'bg-gray-100 text-gray-800',
+            pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+            paid: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+            preparing: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+            ready: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+            completed: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
         };
-        return colors[status] ?? 'bg-gray-100 text-gray-800';
+        return colors[status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     };
 
     const getStatusLabel = (status: string) => {
@@ -52,14 +52,35 @@ export default function CompanyDashboard({ company, branch, stats, recentOrders,
 
     return (
         <CompanyLayout breadcrumbs={[{ title: 'Dashboard', href: '/company' }]}>
-            <Head title={`Dashboard - ${company.name}`} />
+            <Head title={`Dashboard - ${branch ? branch.name : company.name}`} />
 
             <div className="space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
-                    <p className="text-muted-foreground">
-                        {branch ? `Sucursal: ${branch.name}` : 'Todas las sucursales'}
-                    </p>
+                <div className="flex items-start justify-between">
+                    <div>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-3xl font-bold tracking-tight">
+                                {branch ? branch.name : company.name}
+                            </h1>
+                            {branch && (
+                                <Badge variant="secondary" className="text-sm">
+                                    <MapPin className="mr-1 h-3 w-3" />
+                                    Sucursal
+                                </Badge>
+                            )}
+                        </div>
+                        <p className="text-muted-foreground mt-1">
+                            {branch ? (
+                                <>
+                                    <span className="flex items-center gap-1">
+                                        <Building2 className="h-4 w-4" />
+                                        {company.name}
+                                    </span>
+                                </>
+                            ) : (
+                                'Vista general de todas las sucursales'
+                            )}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -102,18 +123,20 @@ export default function CompanyDashboard({ company, branch, stats, recentOrders,
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Sucursales</CardTitle>
-                            <Store className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.total_branches}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Sucursales activas
-                            </p>
-                        </CardContent>
-                    </Card>
+                    {!branch && (
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Sucursales</CardTitle>
+                                <Store className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{stats.total_branches}</div>
+                                <p className="text-xs text-muted-foreground">
+                                    Sucursales activas
+                                </p>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">

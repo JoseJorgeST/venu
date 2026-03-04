@@ -1,7 +1,11 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
     Card,
     CardContent,
@@ -24,6 +28,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
     ArrowLeft,
     Pencil,
     Building2,
@@ -40,6 +52,7 @@ import {
     Power,
     Trash2,
     Store,
+    Armchair,
 } from 'lucide-react';
 
 interface Owner {
@@ -74,6 +87,14 @@ interface CompanyUser {
     };
 }
 
+interface TableLocation {
+    id: number;
+    name: string;
+    description: string | null;
+    is_active: boolean;
+    sort_order: number;
+}
+
 interface Company {
     id: number;
     name: string;
@@ -89,6 +110,7 @@ interface Company {
     owner: Owner | null;
     branches: Branch[];
     users: CompanyUser[];
+    table_locations: TableLocation[];
 }
 
 interface Stats {
@@ -110,6 +132,15 @@ const roleLabels: Record<string, string> = {
 };
 
 export default function CompanyShow({ company, stats }: Props) {
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const [editingLocation, setEditingLocation] = useState<TableLocation | null>(null);
+
+    const locationForm = useForm({
+        name: '',
+        description: '',
+        is_active: true,
+    });
+
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('es-ES', {
             style: 'currency',
@@ -120,6 +151,47 @@ export default function CompanyShow({ company, stats }: Props) {
     const handleDeleteBranch = (branch: Branch) => {
         if (confirm(`¿Estás seguro de eliminar la sucursal "${branch.name}"?`)) {
             router.delete(`/admin/companies/${company.id}/branches/${branch.id}`);
+        }
+    };
+
+    const openCreateLocation = () => {
+        setEditingLocation(null);
+        locationForm.reset();
+        locationForm.setData({ name: '', description: '', is_active: true });
+        setShowLocationModal(true);
+    };
+
+    const openEditLocation = (location: TableLocation) => {
+        setEditingLocation(location);
+        locationForm.setData({
+            name: location.name,
+            description: location.description || '',
+            is_active: location.is_active,
+        });
+        setShowLocationModal(true);
+    };
+
+    const handleSaveLocation = () => {
+        if (editingLocation) {
+            locationForm.put(`/admin/companies/${company.id}/locations/${editingLocation.id}`, {
+                onSuccess: () => {
+                    setShowLocationModal(false);
+                    locationForm.reset();
+                },
+            });
+        } else {
+            locationForm.post(`/admin/companies/${company.id}/locations`, {
+                onSuccess: () => {
+                    setShowLocationModal(false);
+                    locationForm.reset();
+                },
+            });
+        }
+    };
+
+    const handleDeleteLocation = (location: TableLocation) => {
+        if (confirm(`¿Estás seguro de eliminar la ubicación "${location.name}"?`)) {
+            router.delete(`/admin/companies/${company.id}/locations/${location.id}`);
         }
     };
 
@@ -312,6 +384,87 @@ export default function CompanyShow({ company, stats }: Props) {
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle className="flex items-center gap-2">
+                                <Armchair className="h-5 w-5" />
+                                Ubicaciones / Zonas
+                            </CardTitle>
+                            <CardDescription>
+                                Zonas disponibles para reservaciones (ej: Terraza, VIP, Balcón)
+                            </CardDescription>
+                        </div>
+                        <Button onClick={openCreateLocation}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nueva Ubicación
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        {company.table_locations && company.table_locations.length > 0 ? (
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {company.table_locations.map((location) => (
+                                    <div
+                                        key={location.id}
+                                        className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${location.is_active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                                                <Armchair className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">{location.name}</p>
+                                                {location.description && (
+                                                    <p className="text-sm text-muted-foreground">{location.description}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant={location.is_active ? 'default' : 'secondary'}>
+                                                {location.is_active ? 'Activa' : 'Inactiva'}
+                                            </Badge>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => openEditLocation(location)}>
+                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        Editar
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleDeleteLocation(location)}
+                                                        className="text-destructive"
+                                                    >
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Eliminar
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <Armchair className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                                <p className="mt-2 text-muted-foreground">
+                                    No hay ubicaciones configuradas
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                    Agrega zonas como Terraza, VIP, Sala principal, etc.
+                                </p>
+                                <Button variant="outline" className="mt-4" onClick={openCreateLocation}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Crear primera ubicación
+                                </Button>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle className="flex items-center gap-2">
                                 <Store className="h-5 w-5" />
                                 Sucursales
                             </CardTitle>
@@ -426,6 +579,65 @@ export default function CompanyShow({ company, stats }: Props) {
                     </CardContent>
                 </Card>
             </div>
+
+            <Dialog open={showLocationModal} onOpenChange={setShowLocationModal}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {editingLocation ? 'Editar Ubicación' : 'Nueva Ubicación'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {editingLocation
+                                ? 'Modifica los datos de la ubicación.'
+                                : 'Agrega una nueva zona para reservaciones (ej: Terraza, VIP, Balcón).'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="location-name">Nombre *</Label>
+                            <Input
+                                id="location-name"
+                                placeholder="Ej: Terraza, VIP, Balcón"
+                                value={locationForm.data.name}
+                                onChange={(e) => locationForm.setData('name', e.target.value)}
+                            />
+                            {locationForm.errors.name && (
+                                <p className="text-sm text-destructive">{locationForm.errors.name}</p>
+                            )}
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="location-description">Descripción</Label>
+                            <Input
+                                id="location-description"
+                                placeholder="Ej: Zona al aire libre con vista al jardín"
+                                value={locationForm.data.description}
+                                onChange={(e) => locationForm.setData('description', e.target.value)}
+                            />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="location-active">Activa</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Las ubicaciones inactivas no aparecen en reservaciones
+                                </p>
+                            </div>
+                            <Switch
+                                id="location-active"
+                                checked={locationForm.data.is_active}
+                                onCheckedChange={(checked) => locationForm.setData('is_active', checked)}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowLocationModal(false)}>
+                            Cancelar
+                        </Button>
+                        <Button onClick={handleSaveLocation} disabled={locationForm.processing}>
+                            {editingLocation ? 'Guardar Cambios' : 'Crear Ubicación'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AdminLayout>
     );
 }

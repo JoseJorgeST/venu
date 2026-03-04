@@ -17,43 +17,96 @@ import {
     LayoutDashboard,
     Store,
     ShoppingCart,
-    UtensilsCrossed,
     BarChart3,
     Settings,
     CalendarDays,
+    Package,
+    MapPin,
 } from 'lucide-react';
 
-const companyNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/company',
-        icon: LayoutDashboard,
-    },
-    {
-        title: 'Sucursales',
-        href: '/company/branches',
-        icon: Store,
-    },
-    {
-        title: 'Pedidos',
-        href: '/company/orders',
-        icon: ShoppingCart,
-    },
-    {
-        title: 'Reservaciones',
-        href: '/company/reservations',
-        icon: CalendarDays,
-    },
-    {
-        title: 'Reportes',
-        href: '/company/reports',
-        icon: BarChart3,
-    },
-];
-
 export function AppSidebarCompany({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, tenant } = usePage<SharedData>().props;
     const { hasMultipleBranches } = useTenant();
+
+    const currentBranch = tenant?.currentBranch;
+
+    const branchNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/company',
+            icon: LayoutDashboard,
+        },
+        {
+            title: 'Menú / Productos',
+            href: '/company/menu',
+            icon: Package,
+        },
+        {
+            title: 'Pedidos',
+            href: '/company/orders',
+            icon: ShoppingCart,
+        },
+        {
+            title: 'Reservaciones',
+            href: '/company/reservations',
+            icon: CalendarDays,
+        },
+        {
+            title: 'Reportes',
+            href: '/company/reports',
+            icon: BarChart3,
+        },
+        {
+            title: 'Configuración',
+            href: '/company/settings',
+            icon: Settings,
+        },
+    ];
+
+    const companyNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/company',
+            icon: LayoutDashboard,
+        },
+        {
+            title: 'Sucursales',
+            href: '/company/branches',
+            icon: Store,
+        },
+        {
+            title: 'Menú / Productos',
+            href: '/company/menu',
+            icon: Package,
+        },
+        {
+            title: 'Pedidos',
+            href: '/company/orders',
+            icon: ShoppingCart,
+        },
+        {
+            title: 'Reservaciones',
+            href: '/company/reservations',
+            icon: CalendarDays,
+        },
+        {
+            title: 'Reportes',
+            href: '/company/reports',
+            icon: BarChart3,
+        },
+        {
+            title: 'Configuración',
+            href: '/company/settings',
+            icon: Settings,
+        },
+        {
+            title: 'Ubicaciones',
+            href: '/company/settings/locations',
+            icon: MapPin,
+        },
+    ];
+
+    const navItems = currentBranch ? branchNavItems : companyNavItems;
 
     return (
         <Sidebar collapsible="icon" variant="inset" {...props}>
@@ -62,7 +115,7 @@ export function AppSidebarCompany({ ...props }: React.ComponentProps<typeof Side
             </SidebarHeader>
 
             <SidebarContent>
-                {hasMultipleBranches() && (
+                {hasMultipleBranches() && !currentBranch && (
                     <SidebarGroup>
                         <SidebarGroupLabel>Sucursal Activa</SidebarGroupLabel>
                         <div className="px-2">
@@ -70,7 +123,7 @@ export function AppSidebarCompany({ ...props }: React.ComponentProps<typeof Side
                         </div>
                     </SidebarGroup>
                 )}
-                <NavMain items={companyNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>

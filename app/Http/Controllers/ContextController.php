@@ -40,19 +40,28 @@ class ContextController extends Controller
     public function switchBranch(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'branch_id' => ['required', 'exists:branches,id'],
+            'branch_id' => ['nullable', 'exists:branches,id'],
         ]);
 
         $user = $request->user();
-        $branch = Branch::findOrFail($validated['branch_id']);
+        $branchId = $validated['branch_id'] ?? null;
 
-        if ($branch->company_id !== $user->current_company_id) {
-            abort(403, 'Esta sucursal no pertenece a tu empresa actual.');
+        if ($branchId) {
+            $branch = Branch::findOrFail($branchId);
+
+            if ($branch->company_id !== $user->current_company_id) {
+                abort(403, 'Esta sucursal no pertenece a tu empresa actual.');
+            }
+
+            $user->update(['current_branch_id' => $branch->id]);
+
+            return redirect()->route('company.dashboard')->with('success', "Cambiado a sucursal {$branch->name}");
         }
 
-        $user->update(['current_branch_id' => $branch->id]);
+        $user->update(['current_branch_id' => null]);
+        $company = Company::find($user->current_company_id);
 
-        return back()->with('success', "Cambiado a sucursal {$branch->name}");
+        return redirect()->route('company.dashboard')->with('success', "Viendo {$company->name} (Principal)");
     }
 
     public function getContext(Request $request): array

@@ -103,6 +103,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'super_admin'])->gro
     Route::put('companies/{company}/branches/{branch}/menu/{menuItem}', [App\Http\Controllers\Admin\BranchController::class, 'updateMenuItem'])->name('companies.branches.menu.update');
     Route::delete('companies/{company}/branches/{branch}/menu/{menuItem}', [App\Http\Controllers\Admin\BranchController::class, 'destroyMenuItem'])->name('companies.branches.menu.destroy');
 
+    Route::post('companies/{company}/locations', [App\Http\Controllers\Admin\TableLocationController::class, 'store'])->name('companies.locations.store');
+    Route::put('companies/{company}/locations/{tableLocation}', [App\Http\Controllers\Admin\TableLocationController::class, 'update'])->name('companies.locations.update');
+    Route::delete('companies/{company}/locations/{tableLocation}', [App\Http\Controllers\Admin\TableLocationController::class, 'destroy'])->name('companies.locations.destroy');
+    Route::post('companies/{company}/locations/reorder', [App\Http\Controllers\Admin\TableLocationController::class, 'reorder'])->name('companies.locations.reorder');
+
     Route::resource('users', AdminUserController::class);
     Route::post('users/{user}/assign-role', [AdminUserController::class, 'assignRole'])->name('users.assign-role');
 
@@ -117,6 +122,13 @@ Route::prefix('company')->name('company.')->middleware(['auth', 'company_access'
     Route::resource('branches', BranchController::class);
     Route::post('branches/{branch}/toggle-status', [BranchController::class, 'toggleStatus'])->name('branches.toggle-status');
 
+    Route::get('menu', [MenuItemController::class, 'menu'])->name('menu');
+    Route::get('menu/create', [MenuItemController::class, 'createForCompany'])->name('menu.create');
+    Route::post('menu', [MenuItemController::class, 'storeForCompany'])->name('menu.store');
+    Route::get('menu/{menuItem}/edit', [MenuItemController::class, 'editForCompany'])->name('menu.edit');
+    Route::put('menu/{menuItem}', [MenuItemController::class, 'updateForCompany'])->name('menu.update');
+    Route::delete('menu/{menuItem}', [MenuItemController::class, 'destroyForCompany'])->name('menu.destroy');
+    Route::post('menu/{menuItem}/toggle-availability', [MenuItemController::class, 'toggleAvailabilityForCompany'])->name('menu.toggle-availability');
     Route::get('branches/{branch}/menu-items', [MenuItemController::class, 'index'])->name('branches.menu-items.index');
     Route::get('branches/{branch}/menu-items/create', [MenuItemController::class, 'create'])->name('branches.menu-items.create');
     Route::post('branches/{branch}/menu-items', [MenuItemController::class, 'store'])->name('branches.menu-items.store');
@@ -135,6 +147,15 @@ Route::prefix('company')->name('company.')->middleware(['auth', 'company_access'
     Route::get('reservations', [App\Http\Controllers\Company\ReservationController::class, 'index'])->name('reservations.index');
     Route::get('reservations/{reservation}', [App\Http\Controllers\Company\ReservationController::class, 'show'])->name('reservations.show');
     Route::patch('reservations/{reservation}/status', [App\Http\Controllers\Company\ReservationController::class, 'updateStatus'])->name('reservations.update-status');
+
+    Route::get('settings', [App\Http\Controllers\Company\SettingsController::class, 'index'])->name('settings.index');
+    Route::put('settings', [App\Http\Controllers\Company\SettingsController::class, 'update'])->name('settings.update');
+
+    Route::get('settings/locations', [App\Http\Controllers\Company\TableLocationController::class, 'index'])->name('settings.locations');
+    Route::post('settings/locations', [App\Http\Controllers\Company\TableLocationController::class, 'store'])->name('settings.locations.store');
+    Route::put('settings/locations/{tableLocation}', [App\Http\Controllers\Company\TableLocationController::class, 'update'])->name('settings.locations.update');
+    Route::delete('settings/locations/{tableLocation}', [App\Http\Controllers\Company\TableLocationController::class, 'destroy'])->name('settings.locations.destroy');
+    Route::post('settings/locations/reorder', [App\Http\Controllers\Company\TableLocationController::class, 'reorder'])->name('settings.locations.reorder');
 });
 
 require __DIR__.'/settings.php';

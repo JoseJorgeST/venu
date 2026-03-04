@@ -30,6 +30,9 @@ class Branch extends Model
         'restaurant_id',
         'name',
         'code',
+        'address',
+        'phone',
+        'email',
         'is_main',
         'is_active',
     ];

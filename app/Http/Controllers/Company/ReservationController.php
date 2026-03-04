@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reservation;
+use App\Models\TableLocation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,14 +21,20 @@ class ReservationController extends Controller
             return Inertia::render('company/no-company');
         }
 
-        $query = Reservation::with(['user', 'restaurant'])
-            ->whereHas('restaurant', function ($q) use ($company) {
-                $q->where('company_id', $company->id);
-            });
+        // Si hay sucursal, usa el restaurante de la sucursal
+        // Si no hay sucursal, usa el restaurante principal de la empresa
+        $restaurant = $branch ? $branch->restaurant : $company->mainRestaurant;
 
-        if ($branch && $branch->restaurant_id) {
-            $query->where('restaurant_id', $branch->restaurant_id);
+        if (!$restaurant) {
+            return Inertia::render('company/reservations/index', [
+                'reservations' => ['data' => [], 'links' => [], 'current_page' => 1, 'last_page' => 1],
+                'filters' => [],
+                'tableLocations' => [],
+            ]);
         }
+
+        $query = Reservation::with(['user', 'restaurant'])
+            ->where('restaurant_id', $restaurant->id);
 
         if ($status = $request->input('status')) {
             if ($status !== 'all') {
@@ -53,9 +60,15 @@ class ReservationController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $tableLocations = TableLocation::where('company_id', $company->id)
+            ->active()
+            ->ordered()
+            ->get(['id', 'name', 'description']);
+
         return Inertia::render('company/reservations/index', [
             'reservations' => $reservations,
             'filters' => $request->only(['status', 'search', 'date']),
+            'tableLocations' => $tableLocations,
         ]);
     }
 
@@ -88,10 +101,53 @@ class ReservationController extends Controller
 
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:pending,confirmed,cancelled,completed,no_show'],
+            'table_number' => ['nullable', 'string', 'max:20'],
+            'table_location' => ['nullable', 'string', 'max:50'],
+            'rejection_reason' => ['nullable', 'string', 'max:100'],
+            'admin_message' => ['nullable', 'string', 'max:2000'],
+            'alternative_date' => ['nullable', 'date'],
+            'alternative_time' => ['nullable', 'string'],
         ]);
 
-        $reservation->update(['status' => $validated['status']]);
+        $updateData = ['status' => $validated['status']];
 
-        return back()->with('success', 'Estado de la reservación actualizado.');
+        if (!empty($validated['table_number'])) {
+            $updateData['table_number'] = $validated['table_number'];
+        }
+
+        if (!empty($validated['table_location'])) {
+            $updateData['table_location'] = $validated['table_location'];
+        }
+
+        if (!empty($validated['rejection_reason'])) {
+            $updateData['rejection_reason'] = $validated['rejection_reason'];
+        }
+
+        if (!empty($validated['admin_message'])) {
+            $updateData['admin_message'] = $validated['admin_message'];
+        }
+
+        if (!empty($validated['alternative_date'])) {
+            $updateData['alternative_date'] = $validated['alternative_date'];
+        }
+
+        if (!empty($validated['alternative_time'])) {
+            $updateData['alternative_time'] = $validated['alternative_time'];
+        }
+
+        if (in_array($validated['status'], ['confirmed', 'cancelled'])) {
+            $updateData['responded_at'] = now();
+        }
+
+        $reservation->update($updateData);
+
+        $statusMessages = [
+            'confirmed' => 'Reservación confirmada exitosamente.',
+            'cancelled' => 'Reservación rechazada. Se ha notificado al cliente.',
+            'completed' => 'Reservación marcada como completada.',
+            'no_show' => 'Reservación marcada como no asistió.',
+        ];
+
+        return back()->with('success', $statusMessages[$validated['status']] ?? 'Estado actualizado.');
     }
 }

@@ -17,14 +17,22 @@ class OrderController extends Controller
         $company = $request->current_company;
         $branch = $request->current_branch;
 
-        $query = Order::with(['user', 'restaurant'])
-            ->whereHas('restaurant', function ($q) use ($company) {
-                $q->where('company_id', $company->id);
-            });
+        // Si hay sucursal, usa el restaurante de la sucursal
+        // Si no hay sucursal, usa el restaurante principal de la empresa
+        $restaurant = $branch ? $branch->restaurant : $company->mainRestaurant;
 
-        if ($branch) {
-            $query->where('restaurant_id', $branch->restaurant_id);
+        if (!$restaurant) {
+            return Inertia::render('company/orders/index', [
+                'orders' => ['data' => [], 'links' => [], 'current_page' => 1, 'last_page' => 1],
+                'branches' => $company->branches()->with('restaurant')->get(),
+                'currentBranch' => $branch,
+                'filters' => [],
+                'statuses' => OrderStatus::cases(),
+            ]);
         }
+
+        $query = Order::with(['user', 'restaurant'])
+            ->where('restaurant_id', $restaurant->id);
 
         if ($status = $request->input('status')) {
             $query->where('status', $status);
@@ -98,17 +106,22 @@ class OrderController extends Controller
         $company = $request->current_company;
         $branch = $request->current_branch;
 
-        $query = Order::with(['user', 'restaurant'])
-            ->whereHas('restaurant', function ($q) use ($company) {
-                $q->where('company_id', $company->id);
-            })
-            ->whereIn('status', ['pending', 'paid', 'preparing', 'ready']);
+        // Si hay sucursal, usa el restaurante de la sucursal
+        // Si no hay sucursal, usa el restaurante principal de la empresa
+        $restaurant = $branch ? $branch->restaurant : $company->mainRestaurant;
 
-        if ($branch) {
-            $query->where('restaurant_id', $branch->restaurant_id);
+        if (!$restaurant) {
+            return Inertia::render('company/orders/pending', [
+                'orders' => [],
+                'statuses' => OrderStatus::cases(),
+            ]);
         }
 
-        $orders = $query->latest()->get();
+        $orders = Order::with(['user', 'restaurant'])
+            ->where('restaurant_id', $restaurant->id)
+            ->whereIn('status', ['pending', 'paid', 'preparing', 'ready'])
+            ->latest()
+            ->get();
 
         return Inertia::render('company/orders/pending', [
             'orders' => $orders,

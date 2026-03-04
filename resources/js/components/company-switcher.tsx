@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Building2, Check } from 'lucide-react';
+import { ChevronsUpDown, Building2, Check, Store } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,11 +12,15 @@ import { useTenant } from '@/hooks/use-tenant';
 
 export function CompanySwitcher() {
     const { isMobile } = useSidebar();
-    const { companies, currentCompany, switchCompany, hasMultipleCompanies } = useTenant();
+    const { companies, currentCompany, currentBranch, switchCompany, hasMultipleCompanies } = useTenant();
 
     if (!currentCompany) {
         return null;
     }
+
+    const displayName = currentBranch ? currentBranch.name : currentCompany.name;
+    const displayLabel = currentBranch ? `Sucursal · ${currentCompany.name}` : 'Empresa';
+    const DisplayIcon = currentBranch ? Store : Building2;
 
     return (
         <SidebarMenu>
@@ -28,19 +32,19 @@ export function CompanySwitcher() {
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                                {currentCompany.logo_url ? (
+                                {!currentBranch && currentCompany.logo_url ? (
                                     <img
                                         src={currentCompany.logo_url}
                                         alt={currentCompany.name}
                                         className="size-6 rounded"
                                     />
                                 ) : (
-                                    <Building2 className="size-4" />
+                                    <DisplayIcon className="size-4" />
                                 )}
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{currentCompany.name}</span>
-                                <span className="truncate text-xs text-muted-foreground">Empresa</span>
+                                <span className="truncate font-semibold">{displayName}</span>
+                                <span className="truncate text-xs text-muted-foreground">{displayLabel}</span>
                             </div>
                             {hasMultipleCompanies() && (
                                 <ChevronsUpDown className="ml-auto size-4" />

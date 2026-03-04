@@ -23,8 +23,15 @@ class Reservation extends Model
         'date',
         'time',
         'party_size',
+        'table_number',
+        'table_location',
         'status',
         'special_requests',
+        'rejection_reason',
+        'admin_message',
+        'alternative_date',
+        'alternative_time',
+        'responded_at',
     ];
 
     /**
@@ -38,6 +45,8 @@ class Reservation extends Model
             'date' => 'date',
             'party_size' => 'integer',
             'status' => ReservationStatus::class,
+            'alternative_date' => 'date',
+            'responded_at' => 'datetime',
         ];
     }
 

@@ -61,14 +61,15 @@ export default function BranchesIndex({ branches, company }: Props) {
                         <Card className="col-span-full">
                             <CardContent className="flex flex-col items-center justify-center py-12">
                                 <Store className="h-12 w-12 text-muted-foreground mb-4" />
-                                <h3 className="text-lg font-semibold">No hay sucursales</h3>
-                                <p className="text-muted-foreground text-center mb-4">
-                                    Crea tu primera sucursal para empezar
+                                <h3 className="text-lg font-semibold">No hay sucursales adicionales</h3>
+                                <p className="text-muted-foreground text-center mb-4 max-w-md">
+                                    Tu empresa opera con un solo local. Si deseas expandirte a múltiples ubicaciones, 
+                                    puedes crear sucursales aquí. Cada sucursal tendrá su propio menú y gestión.
                                 </p>
                                 <Link href="/company/branches/create">
                                     <Button>
                                         <Plus className="mr-2 h-4 w-4" />
-                                        Crear Sucursal
+                                        Crear Nueva Sucursal
                                     </Button>
                                 </Link>
                             </CardContent>

@@ -13,8 +13,12 @@ class RestaurantController extends Controller
      */
     public function index(): Response
     {
+        $restaurants = Restaurant::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('restaurants/index', [
-            'restaurants' => Inertia::lazy(fn () => Restaurant::all()),
+            'restaurants' => $restaurants,
         ]);
     }
 

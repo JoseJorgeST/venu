@@ -96,18 +96,19 @@ class Company extends Model
     }
 
     /**
-     * Get the restaurants through branches.
+     * Get the restaurants that belong directly to this company.
      */
-    public function restaurants(): HasManyThrough
+    public function restaurants(): HasMany
     {
-        return $this->hasManyThrough(
-            Restaurant::class,
-            Branch::class,
-            'company_id',
-            'id',
-            'id',
-            'restaurant_id'
-        );
+        return $this->hasMany(Restaurant::class);
+    }
+
+    /**
+     * Get the main restaurant of the company (first one created).
+     */
+    public function mainRestaurant()
+    {
+        return $this->hasOne(Restaurant::class)->oldestOfMany();
     }
 
     /**
@@ -173,6 +174,14 @@ class Company extends Model
     {
         $pivot = $this->users()->where('user_id', $user->id)->first();
         return $pivot?->pivot?->role;
+    }
+
+    /**
+     * Get the table locations for the company.
+     */
+    public function tableLocations(): HasMany
+    {
+        return $this->hasMany(TableLocation::class);
     }
 
     /**

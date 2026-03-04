@@ -20,16 +20,32 @@ class DashboardController extends Controller
             return Inertia::render('company/no-company');
         }
 
+        // Si hay sucursal, usa el restaurante de la sucursal
+        // Si no hay sucursal, usa el restaurante principal de la empresa
+        $restaurant = $branch ? $branch->restaurant : $company->mainRestaurant;
+
         $today = Carbon::today();
         $startOfMonth = Carbon::now()->startOfMonth();
 
-        $ordersQuery = Order::whereHas('restaurant', function ($q) use ($company) {
-            $q->where('company_id', $company->id);
-        });
-
-        if ($branch) {
-            $ordersQuery->where('restaurant_id', $branch->restaurant_id);
+        // Si no hay restaurante, mostrar stats vacíos
+        if (!$restaurant) {
+            return Inertia::render('company/dashboard', [
+                'company' => $company,
+                'branch' => $branch,
+                'stats' => [
+                    'today_orders' => 0,
+                    'today_revenue' => 0,
+                    'month_orders' => 0,
+                    'month_revenue' => 0,
+                    'pending_orders' => 0,
+                    'total_branches' => $company->branches()->count(),
+                ],
+                'recentOrders' => [],
+                'pendingOrders' => [],
+            ]);
         }
+
+        $ordersQuery = Order::where('restaurant_id', $restaurant->id);
 
         $stats = [
             'today_orders' => (clone $ordersQuery)->whereDate('created_at', $today)->count(),
@@ -62,6 +78,10 @@ class DashboardController extends Controller
             ->latest()
             ->take(5)
             ->get();
+
+        if ($branch) {
+            $branch->load('restaurant');
+        }
 
         return Inertia::render('company/dashboard', [
             'company' => $company,

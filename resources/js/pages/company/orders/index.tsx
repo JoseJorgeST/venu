@@ -112,7 +112,7 @@ export default function OrdersIndex({ orders, branches, currentBranch, filters, 
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Pedidos</h1>
                     <p className="text-muted-foreground">
-                        {currentBranch ? `Sucursal: ${currentBranch.name}` : 'Todos los pedidos'}
+                        {currentBranch ? `Sucursal: ${currentBranch.name}` : 'Pedidos de la empresa'}
                     </p>
                 </div>
 

@@ -21,13 +21,31 @@ class ReportsController extends Controller
         $startDate = $this->getStartDate($period);
         $endDate = Carbon::now();
 
-        $ordersQuery = Order::whereHas('restaurant', function ($q) use ($company) {
-            $q->where('company_id', $company->id);
-        });
+        // Si hay sucursal, usa el restaurante de la sucursal
+        // Si no hay sucursal, usa el restaurante principal de la empresa
+        $restaurant = $branch ? $branch->restaurant : $company->mainRestaurant;
 
-        if ($branch) {
-            $ordersQuery->where('restaurant_id', $branch->restaurant_id);
+        if (!$restaurant) {
+            return Inertia::render('company/reports/index', [
+                'company' => $company,
+                'branch' => $branch,
+                'salesOverTime' => [],
+                'salesByBranch' => [],
+                'topProducts' => [],
+                'summary' => [
+                    'total_revenue' => 0,
+                    'total_orders' => 0,
+                    'completed_orders' => 0,
+                    'average_order_value' => 0,
+                    'cancelled_orders' => 0,
+                ],
+                'period' => $period,
+                'startDate' => $startDate->toDateString(),
+                'endDate' => $endDate->toDateString(),
+            ]);
         }
+
+        $ordersQuery = Order::where('restaurant_id', $restaurant->id);
 
         $salesOverTime = (clone $ordersQuery)
             ->select(
@@ -44,18 +62,14 @@ class ReportsController extends Controller
         $salesByBranch = Order::select('restaurant_id')
             ->selectRaw('SUM(total_amount) as total_sales')
             ->selectRaw('COUNT(*) as total_orders')
-            ->whereHas('restaurant', function ($q) use ($company) {
-                $q->where('company_id', $company->id);
-            })
+            ->where('restaurant_id', $restaurant->id)
             ->where('status', 'completed')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('restaurant_id')
             ->with('restaurant.branch')
             ->get();
 
-        $topProducts = Order::whereHas('restaurant', function ($q) use ($company) {
-            $q->where('company_id', $company->id);
-        })
+        $topProducts = Order::where('restaurant_id', $restaurant->id)
             ->where('status', 'completed')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get()

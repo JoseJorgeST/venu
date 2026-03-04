@@ -58,12 +58,12 @@ class ReservationController extends Controller
         ]);
 
         $validated['user_id'] = Auth::id();
-        $validated['status'] = ReservationStatus::Confirmed;
+        $validated['status'] = ReservationStatus::Pending;
 
         Reservation::create($validated);
 
         return redirect()->route('reservations.index')
-            ->with('status', 'Reserva creada correctamente.');
+            ->with('status', 'Reserva enviada. El restaurante confirmará tu reservación pronto.');
     }
 
     /**

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
 use App\Models\Company;
-use App\Models\Restaurant;
+use App\Models\TableLocation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -71,18 +70,14 @@ class CompanyController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'tax_id' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable'],
-            'create_restaurant' => ['nullable'],
-            'restaurant_name' => ['nullable', 'string', 'max:255'],
-            'restaurant_category' => ['nullable', 'string', 'max:100'],
+            'locations' => ['nullable', 'array'],
+            'locations.*.name' => ['required_with:locations', 'string', 'max:50'],
+            'locations.*.description' => ['nullable', 'string', 'max:255'],
         ];
 
         if (!$hasOwnerId) {
             $rules['owner_name'] = ['required', 'string', 'max:255'];
             $rules['owner_email'] = ['required', 'email', 'unique:users,email'];
-        }
-
-        if ($request->boolean('create_restaurant')) {
-            $rules['restaurant_name'] = ['required', 'string', 'max:255'];
         }
 
         $validated = $request->validate($rules);
@@ -114,22 +109,16 @@ class CompanyController extends Controller
 
         $company->addUser(User::find($ownerId), 'owner');
 
-        if ($request->boolean('create_restaurant')) {
-            $restaurant = Restaurant::create([
-                'company_id' => $company->id,
-                'name' => $validated['restaurant_name'],
-                'slug' => Str::slug($validated['restaurant_name']),
-                'category' => $validated['restaurant_category'] ?? null,
-                'is_active' => true,
-            ]);
-
-            Branch::create([
-                'company_id' => $company->id,
-                'restaurant_id' => $restaurant->id,
-                'name' => 'Principal',
-                'is_main' => true,
-                'is_active' => true,
-            ]);
+        if (!empty($validated['locations'])) {
+            foreach ($validated['locations'] as $index => $locationData) {
+                TableLocation::create([
+                    'company_id' => $company->id,
+                    'name' => $locationData['name'],
+                    'description' => $locationData['description'] ?? null,
+                    'is_active' => true,
+                    'sort_order' => $index + 1,
+                ]);
+            }
         }
 
         return redirect()
@@ -143,6 +132,7 @@ class CompanyController extends Controller
             'owner',
             'branches.restaurant',
             'users',
+            'tableLocations',
         ]);
 
         $stats = [
@@ -160,7 +150,7 @@ class CompanyController extends Controller
 
     public function edit(Company $company): Response
     {
-        $company->load(['owner', 'users']);
+        $company->load(['owner', 'users', 'tableLocations']);
         
         $admins = User::role('admin')->get(['id', 'name', 'email']);
 

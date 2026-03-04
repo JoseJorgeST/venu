@@ -47,18 +47,23 @@ class BranchController extends Controller
             'is_main' => ['boolean'],
             'restaurant_name' => ['required', 'string', 'max:255'],
             'restaurant_category' => ['nullable', 'string', 'max:100'],
+            'restaurant_image_url' => ['nullable', 'string', 'max:500'],
             'restaurant_description' => ['nullable', 'string'],
-            'restaurant_address' => ['nullable', 'string', 'max:255'],
+            'restaurant_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'restaurant_latitude' => ['nullable', 'numeric'],
             'restaurant_longitude' => ['nullable', 'numeric'],
         ]);
 
+        // El restaurante de una sucursal NO debe tener company_id
+        // Solo el restaurante principal de la empresa tiene company_id
         $restaurant = Restaurant::create([
-            'company_id' => $company->id,
+            'company_id' => null,
             'name' => $validated['restaurant_name'],
             'slug' => Str::slug($validated['restaurant_name']) . '-' . Str::random(5),
             'category' => $validated['restaurant_category'] ?? null,
+            'image_url' => $validated['restaurant_image_url'] ?? null,
             'description' => $validated['restaurant_description'] ?? null,
+            'rating' => $validated['restaurant_rating'] ?? null,
             'latitude' => $validated['restaurant_latitude'] ?? null,
             'longitude' => $validated['restaurant_longitude'] ?? null,
             'is_active' => true,
@@ -132,7 +137,9 @@ class BranchController extends Controller
             'is_active' => ['boolean'],
             'restaurant_name' => ['required', 'string', 'max:255'],
             'restaurant_category' => ['nullable', 'string', 'max:100'],
+            'restaurant_image_url' => ['nullable', 'string', 'max:500'],
             'restaurant_description' => ['nullable', 'string'],
+            'restaurant_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'restaurant_latitude' => ['nullable', 'numeric'],
             'restaurant_longitude' => ['nullable', 'numeric'],
         ]);
@@ -147,10 +154,12 @@ class BranchController extends Controller
         if ($branch->restaurant) {
             $branch->restaurant->update([
                 'name' => $validated['restaurant_name'],
-                'category' => $validated['restaurant_category'],
-                'description' => $validated['restaurant_description'],
-                'latitude' => $validated['restaurant_latitude'],
-                'longitude' => $validated['restaurant_longitude'],
+                'category' => $validated['restaurant_category'] ?? null,
+                'image_url' => $validated['restaurant_image_url'] ?? null,
+                'description' => $validated['restaurant_description'] ?? null,
+                'rating' => $validated['restaurant_rating'] ?? null,
+                'latitude' => $validated['restaurant_latitude'] ?? null,
+                'longitude' => $validated['restaurant_longitude'] ?? null,
             ]);
         }
 

@@ -11,11 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SetTenantContext
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
@@ -31,10 +26,12 @@ class SetTenantContext
             if ($user->current_company_id) {
                 $currentCompany = Company::find($user->current_company_id);
                 if ($user->current_branch_id) {
-                    $currentBranch = Branch::find($user->current_branch_id);
+                    $currentBranch = Branch::with('restaurant')->find($user->current_branch_id);
                 }
             }
         } elseif ($user->isAdmin()) {
+            $user->refresh();
+            
             if ($user->current_company_id && $user->companies->contains('id', $user->current_company_id)) {
                 $currentCompany = $user->companies->firstWhere('id', $user->current_company_id);
             } else {
@@ -44,16 +41,14 @@ class SetTenantContext
                 }
             }
 
-            if ($currentCompany) {
-                if ($user->current_branch_id) {
-                    $currentBranch = $currentCompany->branches->firstWhere('id', $user->current_branch_id);
-                }
+            if ($currentCompany && $user->current_branch_id) {
+                $currentBranch = Branch::with('restaurant')
+                    ->where('company_id', $currentCompany->id)
+                    ->where('id', $user->current_branch_id)
+                    ->first();
+                    
                 if (!$currentBranch) {
-                    $currentBranch = $currentCompany->branches()->where('is_main', true)->first()
-                        ?? $currentCompany->branches()->first();
-                    if ($currentBranch) {
-                        $user->update(['current_branch_id' => $currentBranch->id]);
-                    }
+                    $user->update(['current_branch_id' => null]);
                 }
             }
         }
