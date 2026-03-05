@@ -20,7 +20,7 @@ function formatCurrency(value: number): string {
 }
 
 export default function CartIndex() {
-    const { items, updateQuantity, removeItem, clearCart, subtotal } = useCart();
+    const { items, updateQuantity, removeItem, clearCart, subtotal, restaurantName, restaurantSlug } = useCart();
 
     const commission = subtotal * COMMISSION_RATE;
     const total = subtotal + commission;
@@ -44,7 +44,20 @@ export default function CartIndex() {
             <Head title="Carrito" />
             <div className="flex flex-1 flex-col gap-6 p-4 pb-24 md:p-6 md:pb-24">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Carrito</h1>
+                    <div>
+                        <h1 className="text-2xl font-semibold">Carrito</h1>
+                        {restaurantName && (
+                            <p className="text-sm text-muted-foreground">
+                                Pedido de{' '}
+                                <Link 
+                                    href={`/restaurants/${restaurantSlug}`}
+                                    className="font-medium text-foreground hover:underline"
+                                >
+                                    {restaurantName}
+                                </Link>
+                            </p>
+                        )}
+                    </div>
                     <Button
                         variant="ghost"
                         size="sm"

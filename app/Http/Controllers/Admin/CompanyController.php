@@ -145,6 +145,10 @@ class CompanyController extends Controller
         return Inertia::render('admin/companies/show', [
             'company' => $company,
             'stats' => $stats,
+            'stripeStatus' => [
+                'has_secret' => !empty($company->stripe_secret),
+                'has_webhook' => !empty($company->stripe_webhook_secret),
+            ],
         ]);
     }
 
@@ -157,6 +161,10 @@ class CompanyController extends Controller
         return Inertia::render('admin/companies/edit', [
             'company' => $company,
             'admins' => $admins,
+            'stripeStatus' => [
+                'has_secret' => !empty($company->stripe_secret),
+                'has_webhook' => !empty($company->stripe_webhook_secret),
+            ],
         ]);
     }
 
@@ -174,6 +182,10 @@ class CompanyController extends Controller
             'tax_id' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable'],
             'remove_previous_owner' => ['nullable'],
+            'stripe_key' => ['nullable', 'string', 'max:255'],
+            'stripe_secret' => ['nullable', 'string', 'max:255'],
+            'stripe_webhook_secret' => ['nullable', 'string', 'max:255'],
+            'stripe_enabled' => ['nullable'],
         ]);
 
         $newOwnerId = (int) $validated['owner_id'];
@@ -194,7 +206,7 @@ class CompanyController extends Controller
             $company->addUser($newOwner, 'owner');
         }
 
-        $company->update([
+        $updateData = [
             'name' => $validated['name'],
             'slug' => $validated['slug'] ?? Str::slug($validated['name']),
             'owner_id' => $newOwnerId,
@@ -205,7 +217,22 @@ class CompanyController extends Controller
             'address' => $validated['address'] ?? null,
             'tax_id' => $validated['tax_id'] ?? null,
             'is_active' => $request->boolean('is_active', true),
-        ]);
+            'stripe_enabled' => $request->boolean('stripe_enabled', false),
+        ];
+
+        if (!empty($validated['stripe_key'])) {
+            $updateData['stripe_key'] = $validated['stripe_key'];
+        }
+
+        if (!empty($validated['stripe_secret'])) {
+            $updateData['stripe_secret'] = $validated['stripe_secret'];
+        }
+
+        if (!empty($validated['stripe_webhook_secret'])) {
+            $updateData['stripe_webhook_secret'] = $validated['stripe_webhook_secret'];
+        }
+
+        $company->update($updateData);
 
         return redirect()
             ->route('admin.companies.show', $company)

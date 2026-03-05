@@ -87,7 +87,7 @@ export default function LoyaltyWallet({ user, wallet_points, logs }: Props) {
                                                 : 'Puntos redimidos'}
                                         </span>
                                         <span className="text-xs text-muted-foreground">
-                                            {new Date(log.created_at).toLocaleDateString('es-ES', {
+                                            {new Date(log.created_at).toLocaleString('es-ES', {
                                                 dateStyle: 'medium',
                                                 timeStyle: 'short',
                                             })}

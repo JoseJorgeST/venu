@@ -175,6 +175,11 @@ export default function RestaurantShow({ restaurant, menuItemsByCategory }: Prop
                                                             description={item.description}
                                                             price={item.price}
                                                             image_url={item.image_url}
+                                                            restaurant={{
+                                                                id: restaurant.id,
+                                                                name: restaurant.name,
+                                                                slug: restaurant.slug,
+                                                            }}
                                                             disabled={!item.is_available}
                                                         />
                                                     </li>

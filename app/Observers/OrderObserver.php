@@ -19,7 +19,7 @@ class OrderObserver
 
     /**
      * Handle the Order "updated" event.
-     * Cuando status pasa a "completed", suma puntos (total_amount / 1) al usuario y crea LoyaltyLog.
+     * Cuando status pasa a "completed", suma 2 puntos fijos al usuario y crea LoyaltyLog.
      */
     public function updated(Order $order): void
     {
@@ -31,10 +31,7 @@ class OrderObserver
             return;
         }
 
-        $points = (int) round((float) $order->total_amount);
-        if ($points <= 0) {
-            return;
-        }
+        $points = 2;
 
         $order->user->increment('wallet_points', $points);
 

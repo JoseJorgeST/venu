@@ -10,12 +10,19 @@ import {
 import { MenuItemDialog } from '@/components/menu-item-dialog';
 import { cn } from '@/lib/utils';
 
+export type RestaurantInfo = {
+    id: number;
+    name: string;
+    slug: string;
+};
+
 export type MenuItemCardProps = {
     menuItemId: number;
     name: string;
     description: string | null;
     price: string | number;
     image_url: string | null;
+    restaurant: RestaurantInfo;
     onAdd?: () => void;
     onAddToCart?: (quantity: number) => void;
     disabled?: boolean;
@@ -28,6 +35,7 @@ export function MenuItemCard({
     description,
     price,
     image_url,
+    restaurant,
     onAdd,
     onAddToCart,
     disabled = false,
@@ -103,6 +111,7 @@ export function MenuItemCard({
                 description={description}
                 price={price}
                 image_url={image_url}
+                restaurant={restaurant}
                 onAddToCart={handleAddToCart}
             />
         </>

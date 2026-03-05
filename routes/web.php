@@ -9,7 +9,9 @@ use App\Http\Controllers\Company\DashboardController as CompanyDashboardControll
 use App\Http\Controllers\Company\MenuItemController;
 use App\Http\Controllers\Company\OrderController as CompanyOrderController;
 use App\Http\Controllers\Company\ReportsController as CompanyReportsController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContextController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\OtpController;
@@ -48,12 +50,14 @@ Route::get('/restaurants/{slug}', [RestaurantController::class, 'show'])->name('
 
 Route::get('/cart', fn () => Inertia::render('cart/index'))->name('cart.index');
 
-Route::get('/checkout', function () {
-    $user = request()->user();
-    return Inertia::render('checkout/index', [
-        'wallet_points' => $user ? (int) $user->wallet_points : 0,
-    ]);
-})->middleware('auth')->name('checkout.index');
+Route::middleware('auth')->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('/create-payment-intent', [CheckoutController::class, 'createPaymentIntent'])->name('create-payment-intent');
+    Route::post('/confirm-payment', [CheckoutController::class, 'confirmPayment'])->name('confirm-payment');
+});
+
+Route::post('/webhook/stripe/{company}', [StripeWebhookController::class, 'handle'])
+    ->name('webhook.stripe');
 
 Route::get('/orders/confirmation', function () {
     return Inertia::render('orders/confirmation', [

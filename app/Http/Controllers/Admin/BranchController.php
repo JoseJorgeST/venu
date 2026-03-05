@@ -75,6 +75,12 @@ class BranchController extends Controller
             'company' => $company,
             'branch' => $branch,
             'stats' => $stats,
+            'stripeStatus' => [
+                'has_key' => !empty($branch->stripe_key),
+                'has_secret' => !empty($branch->stripe_secret),
+                'has_webhook' => !empty($branch->stripe_webhook_secret),
+                'enabled' => $branch->stripe_enabled,
+            ],
         ]);
     }
 
@@ -89,6 +95,12 @@ class BranchController extends Controller
         return Inertia::render('admin/branches/edit', [
             'company' => $company,
             'branch' => $branch,
+            'stripeStatus' => [
+                'has_key' => !empty($branch->stripe_key),
+                'has_secret' => !empty($branch->stripe_secret),
+                'has_webhook' => !empty($branch->stripe_webhook_secret),
+                'enabled' => $branch->stripe_enabled,
+            ],
         ]);
     }
 
@@ -106,14 +118,32 @@ class BranchController extends Controller
             'restaurant_name' => ['required', 'string', 'max:255'],
             'restaurant_category' => ['nullable', 'string', 'max:100'],
             'restaurant_description' => ['nullable', 'string'],
+            'stripe_key' => ['nullable', 'string', 'max:255'],
+            'stripe_secret' => ['nullable', 'string', 'max:255'],
+            'stripe_webhook_secret' => ['nullable', 'string', 'max:255'],
+            'stripe_enabled' => ['boolean'],
         ]);
 
-        $branch->update([
+        $branchData = [
             'name' => $validated['name'],
             'code' => $validated['code'],
             'is_main' => $validated['is_main'] ?? false,
             'is_active' => $validated['is_active'] ?? true,
-        ]);
+            'stripe_enabled' => $validated['stripe_enabled'] ?? false,
+        ];
+
+        // Solo actualizar las keys si se proporcionan valores no vacíos
+        if (!empty($validated['stripe_key'])) {
+            $branchData['stripe_key'] = $validated['stripe_key'];
+        }
+        if (!empty($validated['stripe_secret'])) {
+            $branchData['stripe_secret'] = $validated['stripe_secret'];
+        }
+        if (!empty($validated['stripe_webhook_secret'])) {
+            $branchData['stripe_webhook_secret'] = $validated['stripe_webhook_secret'];
+        }
+
+        $branch->update($branchData);
 
         if ($branch->restaurant) {
             $branch->restaurant->update([

@@ -25,7 +25,8 @@ import {
     AlertDescription,
 } from '@/components/ui/alert';
 import InputError from '@/components/input-error';
-import { ArrowLeft, Building2, User, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Building2, User, AlertTriangle, CreditCard, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 interface Admin {
     id: number;
@@ -44,15 +45,26 @@ interface Company {
     phone: string | null;
     address: string | null;
     tax_id: string | null;
+    stripe_key: string | null;
+    stripe_enabled: boolean;
     is_active: boolean;
+}
+
+interface StripeStatus {
+    has_secret: boolean;
+    has_webhook: boolean;
 }
 
 interface Props {
     company: Company;
     admins: Admin[];
+    stripeStatus: StripeStatus;
 }
 
-export default function EditCompany({ company, admins }: Props) {
+export default function EditCompany({ company, admins, stripeStatus }: Props) {
+    const [showSecret, setShowSecret] = useState(false);
+    const [showWebhook, setShowWebhook] = useState(false);
+
     const { data, setData, put, processing, errors } = useForm({
         name: company.name,
         slug: company.slug,
@@ -65,6 +77,10 @@ export default function EditCompany({ company, admins }: Props) {
         tax_id: company.tax_id ?? '',
         is_active: company.is_active,
         remove_previous_owner: false,
+        stripe_key: company.stripe_key ?? '',
+        stripe_secret: '',
+        stripe_webhook_secret: '',
+        stripe_enabled: company.stripe_enabled ?? false,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -284,6 +300,104 @@ export default function EditCompany({ company, admins }: Props) {
                                     </AlertDescription>
                                 </Alert>
                             )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <CreditCard className="h-5 w-5" />
+                                Configuración de Stripe
+                            </CardTitle>
+                            <CardDescription>
+                                API keys de Stripe para procesar pagos de esta empresa
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <Switch
+                                    id="stripe_enabled"
+                                    checked={data.stripe_enabled}
+                                    onCheckedChange={(checked) => setData('stripe_enabled', checked)}
+                                />
+                                <Label htmlFor="stripe_enabled">Pagos con Stripe habilitados</Label>
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="stripe_key">Publishable Key (pk_...)</Label>
+                                    <Input
+                                        id="stripe_key"
+                                        value={data.stripe_key}
+                                        onChange={(e) => setData('stripe_key', e.target.value)}
+                                        placeholder="pk_test_..."
+                                    />
+                                    <InputError message={errors.stripe_key} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="stripe_secret">Secret Key (sk_...)</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="stripe_secret"
+                                            type={showSecret ? 'text' : 'password'}
+                                            value={data.stripe_secret}
+                                            onChange={(e) => setData('stripe_secret', e.target.value)}
+                                            placeholder={stripeStatus?.has_secret ? '••••••••••••••••' : 'sk_test_...'}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0"
+                                            onClick={() => setShowSecret(!showSecret)}
+                                        >
+                                            {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                    {stripeStatus?.has_secret && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Ya configurada. Deja vacío para mantener.
+                                        </p>
+                                    )}
+                                    <InputError message={errors.stripe_secret} />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="stripe_webhook_secret">Webhook Secret (whsec_...) - Opcional</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="stripe_webhook_secret"
+                                        type={showWebhook ? 'text' : 'password'}
+                                        value={data.stripe_webhook_secret}
+                                        onChange={(e) => setData('stripe_webhook_secret', e.target.value)}
+                                        placeholder={stripeStatus?.has_webhook ? '••••••••••••••••' : 'whsec_...'}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0"
+                                        onClick={() => setShowWebhook(!showWebhook)}
+                                    >
+                                        {showWebhook ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                                {stripeStatus?.has_webhook && (
+                                    <p className="text-xs text-muted-foreground">
+                                        Ya configurado. Deja vacío para mantener.
+                                    </p>
+                                )}
+                                <InputError message={errors.stripe_webhook_secret} />
+                            </div>
+
+                            <Alert>
+                                <CreditCard className="h-4 w-4" />
+                                <AlertDescription>
+                                    Usa keys de prueba (pk_test_... y sk_test_...) para probar sin procesar pagos reales.
+                                    Tarjeta de prueba: <code className="bg-muted px-1 rounded">4242 4242 4242 4242</code>
+                                </AlertDescription>
+                            </Alert>
                         </CardContent>
                     </Card>
 

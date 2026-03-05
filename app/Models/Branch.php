@@ -33,6 +33,10 @@ class Branch extends Model
         'address',
         'phone',
         'email',
+        'stripe_key',
+        'stripe_secret',
+        'stripe_webhook_secret',
+        'stripe_enabled',
         'is_main',
         'is_active',
     ];
@@ -40,6 +44,12 @@ class Branch extends Model
     protected $casts = [
         'is_main' => 'boolean',
         'is_active' => 'boolean',
+        'stripe_enabled' => 'boolean',
+    ];
+
+    protected $hidden = [
+        'stripe_secret',
+        'stripe_webhook_secret',
     ];
 
     protected static function boot(): void
@@ -118,5 +128,27 @@ class Branch extends Model
     public function scopeMain($query)
     {
         return $query->where('is_main', true);
+    }
+
+    /**
+     * Check if branch has Stripe configured and enabled.
+     */
+    public function hasStripeConfigured(): bool
+    {
+        return $this->stripe_enabled 
+            && !empty($this->stripe_key) 
+            && !empty($this->stripe_secret);
+    }
+
+    /**
+     * Get Stripe client for this branch.
+     */
+    public function getStripeClient(): ?\Stripe\StripeClient
+    {
+        if (!$this->hasStripeConfigured()) {
+            return null;
+        }
+
+        return new \Stripe\StripeClient($this->stripe_secret);
     }
 }

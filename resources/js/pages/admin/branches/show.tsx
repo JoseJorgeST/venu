@@ -26,6 +26,9 @@ import {
     Package,
     Plus,
     Trash2,
+    CreditCard,
+    CheckCircle,
+    XCircle,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -68,13 +71,21 @@ interface Stats {
     menu_items: number;
 }
 
+interface StripeStatus {
+    has_key: boolean;
+    has_secret: boolean;
+    has_webhook: boolean;
+    enabled: boolean;
+}
+
 interface Props {
     company: Company;
     branch: Branch;
     stats: Stats;
+    stripeStatus: StripeStatus;
 }
 
-export default function BranchShow({ company, branch, stats }: Props) {
+export default function BranchShow({ company, branch, stats, stripeStatus }: Props) {
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('es-ES', {
             style: 'currency',
@@ -184,6 +195,66 @@ export default function BranchShow({ company, branch, stats }: Props) {
                         </CardContent>
                     </Card>
                 )}
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <CreditCard className="h-5 w-5" />
+                            Configuración de Stripe
+                        </CardTitle>
+                        <CardDescription>
+                            Estado de la integración de pagos para esta sucursal
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="flex items-center gap-2">
+                                {stripeStatus.enabled ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                                <span>Stripe {stripeStatus.enabled ? 'habilitado' : 'deshabilitado'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {stripeStatus.has_key ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                                <span>Publishable Key {stripeStatus.has_key ? 'configurada' : 'no configurada'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {stripeStatus.has_secret ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                                <span>Secret Key {stripeStatus.has_secret ? 'configurada' : 'no configurada'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {stripeStatus.has_webhook ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                                <span>Webhook {stripeStatus.has_webhook ? 'configurado' : 'no configurado'}</span>
+                            </div>
+                        </div>
+                        {!stripeStatus.enabled && (
+                            <p className="mt-4 text-sm text-destructive">
+                                ⚠️ Esta sucursal no tiene método de pago configurado. Los clientes no podrán realizar compras.
+                            </p>
+                        )}
+                        <div className="mt-4">
+                            <Link href={`/admin/companies/${company.id}/branches/${branch.id}/edit`}>
+                                <Button variant="outline" size="sm">
+                                    Configurar Stripe
+                                </Button>
+                            </Link>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">

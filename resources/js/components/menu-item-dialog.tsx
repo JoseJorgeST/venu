@@ -12,6 +12,12 @@ import {
 import { useCart } from '@/contexts/cart-context';
 import { cn } from '@/lib/utils';
 
+export type RestaurantInfo = {
+    id: number;
+    name: string;
+    slug: string;
+};
+
 export type MenuItemDialogProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -20,6 +26,7 @@ export type MenuItemDialogProps = {
     description: string | null;
     price: string | number;
     image_url: string | null;
+    restaurant: RestaurantInfo;
     onAddToCart?: (quantity: number) => void;
 };
 
@@ -34,6 +41,7 @@ export function MenuItemDialog({
     description,
     price,
     image_url,
+    restaurant,
     onAddToCart,
 }: MenuItemDialogProps) {
     const [quantity, setQuantity] = useState(MIN_QUANTITY);
@@ -53,7 +61,8 @@ export function MenuItemDialog({
         if (priceNum != null && !Number.isNaN(priceNum)) {
             addItem(
                 { menuItemId, name, price: priceNum, image_url },
-                quantity
+                quantity,
+                restaurant
             );
         }
         onAddToCart?.(quantity);

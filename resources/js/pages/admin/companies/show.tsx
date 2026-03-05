@@ -53,6 +53,9 @@ import {
     Trash2,
     Store,
     Armchair,
+    CreditCard,
+    CheckCircle,
+    XCircle,
 } from 'lucide-react';
 
 interface Owner {
@@ -105,12 +108,19 @@ interface Company {
     phone: string | null;
     address: string | null;
     tax_id: string | null;
+    stripe_key: string | null;
+    stripe_enabled: boolean;
     is_active: boolean;
     created_at: string;
     owner: Owner | null;
     branches: Branch[];
     users: CompanyUser[];
     table_locations: TableLocation[];
+}
+
+interface StripeStatus {
+    has_secret: boolean;
+    has_webhook: boolean;
 }
 
 interface Stats {
@@ -123,6 +133,7 @@ interface Stats {
 interface Props {
     company: Company;
     stats: Stats;
+    stripeStatus: StripeStatus;
 }
 
 const roleLabels: Record<string, string> = {
@@ -131,7 +142,7 @@ const roleLabels: Record<string, string> = {
     staff: 'Personal',
 };
 
-export default function CompanyShow({ company, stats }: Props) {
+export default function CompanyShow({ company, stats, stripeStatus }: Props) {
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [editingLocation, setEditingLocation] = useState<TableLocation | null>(null);
 
@@ -379,6 +390,73 @@ export default function CompanyShow({ company, stats }: Props) {
                         </CardContent>
                     </Card>
                 </div>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <CreditCard className="h-5 w-5" />
+                            Configuración de Stripe
+                        </CardTitle>
+                        <CardDescription>
+                            Estado de la integración de pagos con Stripe
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="flex items-center justify-between p-3 rounded-lg border">
+                                <span className="text-sm">Pagos habilitados</span>
+                                {company.stripe_enabled ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg border">
+                                <span className="text-sm">Publishable Key</span>
+                                {company.stripe_key ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg border">
+                                <span className="text-sm">Secret Key</span>
+                                {stripeStatus?.has_secret ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg border">
+                                <span className="text-sm">Webhook Secret</span>
+                                {stripeStatus?.has_webhook ? (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                ) : (
+                                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                                )}
+                            </div>
+                        </div>
+                        {company.stripe_key && (
+                            <div className="mt-4 p-3 rounded-lg bg-muted">
+                                <p className="text-sm text-muted-foreground">Publishable Key:</p>
+                                <p className="font-mono text-sm">{company.stripe_key.substring(0, 20)}...</p>
+                            </div>
+                        )}
+                        {!company.stripe_key && !stripeStatus?.has_secret && (
+                            <div className="mt-4 text-center py-4">
+                                <p className="text-muted-foreground">
+                                    Stripe no está configurado para esta empresa.
+                                </p>
+                                <Link href={`/admin/companies/${company.id}/edit`}>
+                                    <Button variant="outline" className="mt-2">
+                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        Configurar Stripe
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">

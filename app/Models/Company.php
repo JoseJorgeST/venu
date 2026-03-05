@@ -43,11 +43,21 @@ class Company extends Model
         'phone',
         'address',
         'tax_id',
+        'stripe_key',
+        'stripe_secret',
+        'stripe_webhook_secret',
+        'stripe_enabled',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'stripe_enabled' => 'boolean',
+    ];
+
+    protected $hidden = [
+        'stripe_secret',
+        'stripe_webhook_secret',
     ];
 
     protected static function boot(): void
@@ -190,5 +200,27 @@ class Company extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Check if company has Stripe configured and enabled.
+     */
+    public function hasStripeConfigured(): bool
+    {
+        return $this->stripe_enabled 
+            && !empty($this->stripe_key) 
+            && !empty($this->stripe_secret);
+    }
+
+    /**
+     * Get Stripe client for this company.
+     */
+    public function getStripeClient(): ?\Stripe\StripeClient
+    {
+        if (!$this->hasStripeConfigured()) {
+            return null;
+        }
+
+        return new \Stripe\StripeClient($this->stripe_secret);
     }
 }
