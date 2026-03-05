@@ -231,10 +231,10 @@ class MenuItemController extends Controller
         $company = $request->current_company;
         $branch = $request->current_branch;
 
-        return $branch?->restaurant ?? $company->restaurants()->first();
+        return $branch?->restaurant ?? $company->mainRestaurant;
     }
 
-    public function createForCompany(Request $request): Response
+    public function createForCompany(Request $request): Response|RedirectResponse
     {
         $company = $request->current_company;
         $restaurant = $this->getRestaurantForCompany($request);

@@ -18,6 +18,7 @@ import {
     BarChart3,
     Settings,
     ShieldCheck,
+    Star,
 } from 'lucide-react';
 
 const adminNavItems: NavItem[] = [
@@ -40,6 +41,11 @@ const adminNavItems: NavItem[] = [
         title: 'Reportes',
         href: '/admin/reports',
         icon: BarChart3,
+    },
+    {
+        title: 'Destacados',
+        href: '/admin/featured',
+        icon: Star,
     },
 ];
 

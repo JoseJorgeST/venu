@@ -48,11 +48,14 @@ class Company extends Model
         'stripe_webhook_secret',
         'stripe_enabled',
         'is_active',
+        'is_featured',
+        'featured_order',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'stripe_enabled' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     protected $hidden = [

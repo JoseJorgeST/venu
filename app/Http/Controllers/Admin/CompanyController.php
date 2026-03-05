@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\Restaurant;
 use App\Models\TableLocation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -108,6 +109,16 @@ class CompanyController extends Controller
         ]);
 
         $company->addUser(User::find($ownerId), 'owner');
+
+        // Crear restaurante principal para la empresa
+        Restaurant::create([
+            'company_id' => $company->id,
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']) . '-' . $company->id,
+            'description' => $validated['description'] ?? null,
+            'category' => 'Restaurante',
+            'is_active' => true,
+        ]);
 
         if (!empty($validated['locations'])) {
             foreach ($validated['locations'] as $index => $locationData) {

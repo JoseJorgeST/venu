@@ -173,12 +173,12 @@ export default function Welcome({
                                     Tu mesa, a un toque
                                 </motion.p>
                                 <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-                                    <span className="block text-white">Reserva mesa.</span>
+                                    <span className="block text-white">Reserva.</span>
                                     <span
                                         className="mt-1 block bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400 bg-clip-text text-transparent"
                                         style={{ backgroundSize: '200% auto' }}
                                     >
-                                        Pide a domicilio.
+                                        Pide.
                                     </span>
                                     <span className="mt-1 block text-white">Disfruta.</span>
                                 </h1>
@@ -390,7 +390,7 @@ export default function Welcome({
                                     Bevenut
                                 </Link>
                                 <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/50">
-                                    Reserva mesa, pide a domicilio y acumula puntos. Todo en una app.
+                                    Reserva, pide y acumula puntos. Todo en una app.
                                 </p>
                             </div>
                             <div>

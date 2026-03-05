@@ -118,6 +118,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'super_admin'])->gro
     Route::get('reports', [AdminReportsController::class, 'index'])->name('reports.index');
     Route::get('reports/{company}', [AdminReportsController::class, 'show'])->name('reports.show');
     Route::get('reports/{company}/orders', [AdminReportsController::class, 'orders'])->name('reports.orders');
+
+    Route::get('featured', [App\Http\Controllers\Admin\FeaturedController::class, 'index'])->name('featured.index');
+    Route::post('featured/company/{company}/toggle', [App\Http\Controllers\Admin\FeaturedController::class, 'toggleCompany'])->name('featured.toggle-company');
+    Route::post('featured/branch/{branch}/toggle', [App\Http\Controllers\Admin\FeaturedController::class, 'toggleBranch'])->name('featured.toggle-branch');
+    Route::post('featured/reorder', [App\Http\Controllers\Admin\FeaturedController::class, 'reorder'])->name('featured.reorder');
+
+    Route::get('orders/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
+    Route::put('orders/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
 });
 
 Route::prefix('company')->name('company.')->middleware(['auth', 'company_access'])->group(function () {

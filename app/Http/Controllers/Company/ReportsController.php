@@ -12,6 +12,9 @@ use Inertia\Response;
 
 class ReportsController extends Controller
 {
+    // Estados que se consideran como pedidos exitosos/pagados
+    private array $successStatuses = ['paid', 'preparing', 'ready', 'completed'];
+
     public function index(Request $request): Response
     {
         $company = $request->current_company;
@@ -20,6 +23,7 @@ class ReportsController extends Controller
         $period = $request->input('period', 'month');
         $startDate = $this->getStartDate($period);
         $endDate = Carbon::now();
+        $successStatuses = $this->successStatuses;
 
         // Si hay sucursal, usa el restaurante de la sucursal
         // Si no hay sucursal, usa el restaurante principal de la empresa
@@ -53,7 +57,7 @@ class ReportsController extends Controller
                 DB::raw('SUM(total_amount) as total'),
                 DB::raw('COUNT(*) as count')
             )
-            ->where('status', 'completed')
+            ->whereIn('status', $successStatuses)
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('date')
             ->orderBy('date')
@@ -63,22 +67,25 @@ class ReportsController extends Controller
             ->selectRaw('SUM(total_amount) as total_sales')
             ->selectRaw('COUNT(*) as total_orders')
             ->where('restaurant_id', $restaurant->id)
-            ->where('status', 'completed')
+            ->whereIn('status', $successStatuses)
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('restaurant_id')
             ->with('restaurant.branch')
             ->get();
 
         $topProducts = Order::where('restaurant_id', $restaurant->id)
-            ->where('status', 'completed')
+            ->whereIn('status', $successStatuses)
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get()
             ->flatMap(function ($order) {
                 return collect($order->items)->map(function ($item) {
+                    $price = $item['unit_price'] ?? $item['price'] ?? 0;
+                    $quantity = $item['quantity'] ?? 1;
+                    $total = $item['total'] ?? (floatval($price) * $quantity);
                     return [
                         'name' => $item['name'] ?? 'Unknown',
-                        'quantity' => $item['quantity'] ?? 1,
-                        'total' => ($item['price'] ?? 0) * ($item['quantity'] ?? 1),
+                        'quantity' => $quantity,
+                        'total' => floatval($total),
                     ];
                 });
             })
@@ -96,18 +103,18 @@ class ReportsController extends Controller
 
         $summary = [
             'total_revenue' => (clone $ordersQuery)
-                ->where('status', 'completed')
+                ->whereIn('status', $successStatuses)
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->sum('total_amount'),
             'total_orders' => (clone $ordersQuery)
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->count(),
             'completed_orders' => (clone $ordersQuery)
-                ->where('status', 'completed')
+                ->whereIn('status', $successStatuses)
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->count(),
             'average_order_value' => (clone $ordersQuery)
-                ->where('status', 'completed')
+                ->whereIn('status', $successStatuses)
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->avg('total_amount') ?? 0,
             'cancelled_orders' => (clone $ordersQuery)

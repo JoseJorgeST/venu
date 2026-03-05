@@ -24,7 +24,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, DollarSign, ShoppingCart, Users, TrendingUp, Package, FileText } from 'lucide-react';
+import { ArrowLeft, DollarSign, ShoppingCart, Users, TrendingUp, Package, FileText, Eye } from 'lucide-react';
 
 interface Owner {
     id: number;
@@ -113,6 +113,7 @@ const periodLabels: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
     pending: 'Pendiente',
+    paid: 'Pagado',
     confirmed: 'Confirmado',
     preparing: 'Preparando',
     ready: 'Listo',
@@ -123,6 +124,7 @@ const statusLabels: Record<string, string> = {
 
 const statusVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     pending: 'outline',
+    paid: 'default',
     confirmed: 'secondary',
     preparing: 'secondary',
     ready: 'default',
@@ -424,12 +426,13 @@ export default function ReportsShow({
                                         <TableHead>Estado</TableHead>
                                         <TableHead className="text-right">Total</TableHead>
                                         <TableHead>Fecha</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {recentOrders.map((order) => (
                                         <TableRow key={order.id}>
-                                            <TableCell className="font-mono">#{order.order_number}</TableCell>
+                                            <TableCell className="font-mono">#{order.id}</TableCell>
                                             <TableCell>{order.user?.name ?? '-'}</TableCell>
                                             <TableCell>{order.restaurant?.name ?? '-'}</TableCell>
                                             <TableCell>
@@ -447,6 +450,14 @@ export default function ReportsShow({
                                                     hour: '2-digit',
                                                     minute: '2-digit',
                                                 })}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Link href={`/admin/orders/${order.id}`}>
+                                                    <Button variant="ghost" size="sm">
+                                                        <Eye className="h-4 w-4 mr-1" />
+                                                        Ver
+                                                    </Button>
+                                                </Link>
                                             </TableCell>
                                         </TableRow>
                                     ))}

@@ -39,12 +39,15 @@ class Branch extends Model
         'stripe_enabled',
         'is_main',
         'is_active',
+        'is_featured',
+        'featured_order',
     ];
 
     protected $casts = [
         'is_main' => 'boolean',
         'is_active' => 'boolean',
         'stripe_enabled' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     protected $hidden = [

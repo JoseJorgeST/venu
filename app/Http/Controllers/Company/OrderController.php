@@ -73,7 +73,7 @@ class OrderController extends Controller
     {
         $company = $request->current_company;
 
-        if ($order->restaurant->company_id !== $company->id) {
+        if (!$this->orderBelongsToCompany($order, $company)) {
             abort(403);
         }
 
@@ -81,6 +81,7 @@ class OrderController extends Controller
 
         return Inertia::render('company/orders/show', [
             'order' => $order,
+            'statuses' => OrderStatus::cases(),
         ]);
     }
 
@@ -88,7 +89,7 @@ class OrderController extends Controller
     {
         $company = $request->current_company;
 
-        if ($order->restaurant->company_id !== $company->id) {
+        if (!$this->orderBelongsToCompany($order, $company)) {
             abort(403);
         }
 
@@ -99,6 +100,27 @@ class OrderController extends Controller
         $order->update(['status' => $validated['status']]);
 
         return back()->with('success', 'Estado del pedido actualizado.');
+    }
+
+    /**
+     * Verifica si el pedido pertenece a la empresa (directamente o a través de una sucursal).
+     */
+    private function orderBelongsToCompany(Order $order, $company): bool
+    {
+        $restaurant = $order->restaurant;
+        
+        // Si el restaurante pertenece directamente a la empresa
+        if ($restaurant->company_id === $company->id) {
+            return true;
+        }
+
+        // Si el restaurante pertenece a una sucursal de la empresa
+        $branch = $restaurant->branch;
+        if ($branch && $branch->company_id === $company->id) {
+            return true;
+        }
+
+        return false;
     }
 
     public function pending(Request $request): Response

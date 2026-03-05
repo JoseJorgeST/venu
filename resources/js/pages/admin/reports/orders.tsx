@@ -19,7 +19,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Filter } from 'lucide-react';
+import { ArrowLeft, Filter, Eye } from 'lucide-react';
 import { useState } from 'react';
 
 interface User {
@@ -65,6 +65,7 @@ interface Props {
 
 const statusLabels: Record<string, string> = {
     pending: 'Pendiente',
+    paid: 'Pagado',
     confirmed: 'Confirmado',
     preparing: 'Preparando',
     ready: 'Listo',
@@ -75,6 +76,7 @@ const statusLabels: Record<string, string> = {
 
 const statusVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     pending: 'outline',
+    paid: 'default',
     confirmed: 'secondary',
     preparing: 'secondary',
     ready: 'default',
@@ -192,12 +194,13 @@ export default function ReportsOrders({ company, orders, filters }: Props) {
                                 <TableHead>Estado</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
                                 <TableHead>Fecha</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {orders.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                                         No se encontraron pedidos
                                     </TableCell>
                                 </TableRow>
@@ -236,6 +239,14 @@ export default function ReportsOrders({ company, orders, filters }: Props) {
                                                 hour: '2-digit',
                                                 minute: '2-digit',
                                             })}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Link href={`/admin/orders/${order.id}`}>
+                                                <Button variant="ghost" size="sm">
+                                                    <Eye className="h-4 w-4 mr-1" />
+                                                    Ver
+                                                </Button>
+                                            </Link>
                                         </TableCell>
                                     </TableRow>
                                 ))

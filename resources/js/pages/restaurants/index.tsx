@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { Search, UtensilsCrossed } from 'lucide-react';
+import { Search, UtensilsCrossed, Star } from 'lucide-react';
 import { RestaurantCard } from '@/components/restaurant-card';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
@@ -20,10 +20,13 @@ export type Restaurant = {
     is_active: boolean;
     created_at: string;
     updated_at: string;
+    featured_type?: 'company' | 'branch';
+    featured_order?: number;
 };
 
 type Props = {
     restaurants?: Restaurant[];
+    featuredRestaurants?: Restaurant[];
 };
 
 const SKELETON_COUNT = 6;
@@ -45,16 +48,19 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Restaurantes', href: '/restaurants' },
 ];
 
-export default function RestaurantsIndex({ restaurants }: Props) {
+export default function RestaurantsIndex({ restaurants, featuredRestaurants }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const list = restaurants ?? [];
+    const featured = featuredRestaurants ?? [];
+
+    const allRestaurants = useMemo(() => [...featured, ...list], [featured, list]);
 
     const categories = useMemo(() => {
-        const set = new Set(list.map((r) => r.category).filter(Boolean));
+        const set = new Set(allRestaurants.map((r) => r.category).filter(Boolean));
         return Array.from(set).sort();
-    }, [list]);
+    }, [allRestaurants]);
 
     const filteredRestaurants = useMemo(() => {
         return list.filter((restaurant) => {
@@ -121,7 +127,7 @@ export default function RestaurantsIndex({ restaurants }: Props) {
                                 Restaurantes
                             </h1>
                             <p className="mt-2 text-sm text-white/60">
-                                {list.length} restaurante{list.length !== 1 ? 's' : ''} disponibles
+                                {allRestaurants.length} restaurante{allRestaurants.length !== 1 ? 's' : ''} disponibles
                             </p>
                         </div>
                     </motion.header>
@@ -182,6 +188,42 @@ export default function RestaurantsIndex({ restaurants }: Props) {
                         </div>
                     </motion.div>
 
+                    {/* Sección de Destacados */}
+                    {featured.length > 0 && (
+                        <motion.section
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                        >
+                            <div className="mb-4 flex items-center gap-2">
+                                <Star className="size-5 fill-amber-400 text-amber-400" />
+                                <h2 className="text-xl font-semibold text-white">Destacados</h2>
+                            </div>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                                {featured.map((restaurant) => (
+                                    <motion.div
+                                        key={restaurant.id}
+                                        whileHover={{ y: -4 }}
+                                    >
+                                        <RestaurantCard
+                                            name={restaurant.name}
+                                            slug={restaurant.slug}
+                                            category={restaurant.category}
+                                            image_url={restaurant.image_url}
+                                            rating={restaurant.rating}
+                                            is_active={restaurant.is_active}
+                                            className={cn(
+                                                'h-full border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 to-transparent text-white backdrop-blur-sm',
+                                                'transition hover:border-amber-500/60 hover:bg-amber-500/15',
+                                                '[&_h2]:text-white [&_p]:text-white/70 [&_.text-muted-foreground]:text-white/70 [&_span]:text-white/70 [&_.bg-muted]:bg-white/10'
+                                            )}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.section>
+                    )}
+
                     {/* Grid de restaurantes */}
                     <motion.section
                         className="flex-1"
@@ -189,6 +231,12 @@ export default function RestaurantsIndex({ restaurants }: Props) {
                         initial="hidden"
                         animate="show"
                     >
+                        {featured.length > 0 && list.length > 0 && (
+                            <motion.div variants={item} className="mb-4 flex items-center gap-2">
+                                <UtensilsCrossed className="size-5 text-white/60" />
+                                <h2 className="text-xl font-semibold text-white">Todos los restaurantes</h2>
+                            </motion.div>
+                        )}
                         {restaurants === undefined ? (
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                                 {Array.from({ length: SKELETON_COUNT }, (_, i) => (
@@ -204,18 +252,18 @@ export default function RestaurantsIndex({ restaurants }: Props) {
                                     </div>
                                 ))}
                             </div>
-                        ) : filteredRestaurants.length === 0 ? (
+                        ) : filteredRestaurants.length === 0 && featured.length === 0 ? (
                             <motion.div
                                 variants={item}
                                 className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 py-20 text-center backdrop-blur-sm"
                             >
                                 <UtensilsCrossed className="size-12 text-white/30" />
                                 <p className="mt-4 text-white/70">
-                                    {list.length === 0
+                                    {allRestaurants.length === 0
                                         ? 'Aún no hay restaurantes.'
                                         : 'Ningún restaurante coincide con los filtros.'}
                                 </p>
-                                {list.length > 0 && (
+                                {allRestaurants.length > 0 && (
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -228,7 +276,7 @@ export default function RestaurantsIndex({ restaurants }: Props) {
                                     </button>
                                 )}
                             </motion.div>
-                        ) : (
+                        ) : filteredRestaurants.length > 0 ? (
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                                 {filteredRestaurants.map((restaurant) => (
                                     <motion.div
@@ -252,7 +300,7 @@ export default function RestaurantsIndex({ restaurants }: Props) {
                                     </motion.div>
                                 ))}
                             </div>
-                        )}
+                        ) : null}
                     </motion.section>
                 </div>
             </div>
